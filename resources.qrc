@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/fonts">
+        <file>fonts/tetris-mania-type.ttf</file>
+    </qresource>
+</RCC>

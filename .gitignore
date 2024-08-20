@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+# IDE
+/.vscode/
+compile_commands.json
+CMakeLists.txt.user

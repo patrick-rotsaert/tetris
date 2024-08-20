@@ -1,0 +1,12 @@
+#pragma once
+
+enum class InputEvent
+{
+	MOVE_LEFT,
+	MOVE_RIGHT,
+	SOFT_DROP,
+	HARD_DROP,
+	ROTATE_CLOCKWISE,
+	ROTATE_COUNTER_CLOCKWISE,
+	NEW_GAME
+};
