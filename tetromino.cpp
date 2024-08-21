@@ -208,7 +208,7 @@ public:
 
 	const RotationState& rotationState() const
 	{
-		assert(this->rotation_ >= 0 && this->rotation_ < this->rotationStates_.size());
+		assert(this->rotation_ >= 0 && this->rotation_ < static_cast<int>(this->rotationStates_.size()));
 		return this->rotationStates_[this->rotation_];
 	}
 

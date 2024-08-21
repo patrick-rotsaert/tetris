@@ -14,16 +14,16 @@
 
 class Game::impl final
 {
-	static constexpr int LINES_LEVEL_UP  = 10;
-	static constexpr int LOCKING_DELAY   = 500;
-	static constexpr int SOFT_DROP_SCORE = 1;
-	static constexpr int HARD_DROP_SCORE = 2;
+	static constexpr uint32_t LINES_LEVEL_UP  = 10;
+	static constexpr int      LOCKING_DELAY   = 500;
+	static constexpr int      SOFT_DROP_SCORE = 1;
+	static constexpr int      HARD_DROP_SCORE = 2;
 
 	std::function<void()>   onUpdate_;
 	std::unique_ptr<ITimer> timer_;
 	BagOfSeven              bagOfSeven_{};
 	std::unique_ptr<Board>  board_{};
-	int                     linesForLevelUp_{ LINES_LEVEL_UP };
+	uint32_t                linesForLevelUp_{ LINES_LEVEL_UP };
 	bool                    lockScheduled_{};
 
 	void reset()

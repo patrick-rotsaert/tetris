@@ -79,7 +79,21 @@ else()
 endif()
 
 target_link_libraries(tetris PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
 target_include_directories(tetris PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+
+option(TETRIS_TREAT_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+# Set the compiler warning options
+set(GCC_WARN_OPTS -Wall -Wextra -pedantic)
+set(MSVC_WARN_OPTS /W4)
+if(TETRIS_TREAT_WARNINGS_AS_ERRORS)
+	list(APPEND GCC_WARN_OPTS -Werror)
+	list(APPEND MSVC_WARN_OPTS /WX)
+endif()
+target_compile_options(tetris PRIVATE
+	"$<$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>:$<BUILD_INTERFACE:${GCC_WARN_OPTS}>>"
+	"$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:$<BUILD_INTERFACE:${MSVC_WARN_OPTS}>>"
+)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
