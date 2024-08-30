@@ -10,6 +10,8 @@
 #include <QPainter>
 #include <QWidget>
 
+namespace gui {
+
 BoardRenderer::BoardRenderer(QWidget* widget)
     : widget_{ widget }
     , fontFamily_{ QFontDatabase::applicationFontFamilies(QFontDatabase::addApplicationFont(":/fonts/fonts/tetris-mania-type.ttf")).at(0) }
@@ -195,3 +197,5 @@ void BoardRenderer::render(const Board& board, const QPoint& boardOrigin)
 		painter.drawText(origin, "Over");
 	}
 }
+
+} // namespace gui

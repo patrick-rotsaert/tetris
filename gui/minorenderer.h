@@ -7,6 +7,8 @@ class QPoint;
 
 enum class TetrominoColor;
 
+namespace gui {
+
 class MinoRenderer final
 {
 	static constexpr int DEFAULT_MINO_SIZE    = 20;
@@ -37,3 +39,5 @@ public:
 
 	void setMinoSize(int minoSize);
 };
+
+} // namespace gui

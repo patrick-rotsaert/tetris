@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(tetris VERSION 0.1 LANGUAGES CXX)
+project(tetris VERSION 0.1 LANGUAGES CXX C)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -11,6 +11,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+if(UNIX)
+	set(CURSES_NEED_NCURSES TRUE)
+	find_package(Curses REQUIRED)
+	find_package(Boost REQUIRED)
+	find_package(fmt REQUIRED)
+	find_package(spdlog REQUIRED)
+endif()
 
 set(PROJECT_SOURCES
         main.cpp
@@ -24,6 +32,27 @@ set(PROJECT_SOURCES
         gui/minocolors.h
         gui/timer.cpp
         gui/timer.h
+
+        tui/tuiapp.cpp
+        tui/tuiapp.h
+        tui/asioterminal.cpp
+        tui/asioterminal.h
+        tui/asioinput.cpp
+        tui/asioinput.h
+        tui/asiotimer.cpp
+        tui/asiotimer.h
+        tui/keycode.h
+        tui/keymodifier.h
+        tui/character.h
+        tui/attribute.h
+        tui/size.h
+        tui/position.h
+        tui/boardrenderer.cpp
+        tui/boardrenderer.h
+        tui/minorenderer.cpp
+        tui/minorenderer.h
+        tui/timer.cpp
+        tui/timer.h
 
         game.cpp
         game.h
@@ -79,6 +108,19 @@ else()
 endif()
 
 target_link_libraries(tetris PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+if(UNIX)
+	target_include_directories(tetris PRIVATE ${CURSES_INCLUDE_DIRS})
+	target_link_libraries(tetris PRIVATE ${CURSES_LIBRARIES})
+	target_include_directories(tetris PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+	include(CheckIncludeFile)
+	check_include_file("term.h" HAVE_TERM_H)
+	check_include_file("termio.h" HAVE_TERMIO_H)
+	check_include_file("termios.h" HAVE_TERMIOS_H)
+	configure_file(curses-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/curses-config.h @ONLY)
+	target_link_libraries(tetris PRIVATE Boost::boost fmt::fmt spdlog::spdlog)
+endif()
+
 
 target_include_directories(tetris PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 

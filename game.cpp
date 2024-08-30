@@ -8,7 +8,7 @@
 #include "itimer.h"
 #include "playingtetromino.h"
 
-#include <QDebug>
+#include <spdlog/spdlog.h>
 
 #include <stdexcept>
 
@@ -161,7 +161,7 @@ class Game::impl final
 
 	void gameOver()
 	{
-		qDebug() << "GAME OVER";
+		spdlog::info("GAME OVER");
 		this->board_->setGameOver();
 		this->timer_->stop();
 		this->onUpdate_();
@@ -179,6 +179,10 @@ public:
 	explicit impl(std::function<void()> onUpdate, std::unique_ptr<ITimer> timer)
 	    : onUpdate_{ onUpdate }
 	    , timer_{ std::move(timer) }
+	{
+	}
+
+	void start()
 	{
 		this->reset();
 	}
@@ -246,6 +250,11 @@ Game::Game(std::function<void()> onUpdate, std::unique_ptr<ITimer> timer)
 
 Game::~Game() noexcept
 {
+}
+
+void Game::start()
+{
+	return this->pimpl_->start();
 }
 
 Board& Game::board()

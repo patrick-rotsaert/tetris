@@ -16,6 +16,8 @@ public:
 	explicit Game(std::function<void()> onUpdate, std::unique_ptr<ITimer> timer);
 	~Game() noexcept;
 
+	void start();
+
 	Board& board();
 
 	void processInputEvent(InputEvent event);

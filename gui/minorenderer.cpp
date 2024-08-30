@@ -5,6 +5,8 @@
 
 #include <cassert>
 
+namespace gui {
+
 const MinoColors MinoRenderer::greyColors{ QColor{ 0x77, 0x77, 0x77 }, QColor{ 0x99, 0x99, 0x99 }, QColor{ 0x33, 0x33, 0x33 } };
 const MinoColors MinoRenderer::yellowColors{ QColor{ 0xCC, 0xCC, 0x00 }, QColor{ 0xFF, 0xFF, 0x00 }, QColor{ 0x99, 0x99, 0x00 } };
 const MinoColors MinoRenderer::redColors{ QColor{ 0xCC, 0x00, 0x00 }, QColor{ 0xFF, 0x00, 0x00 }, QColor{ 0x99, 0x00, 0x00 } };
@@ -116,3 +118,5 @@ void MinoRenderer::setMinoSize(int minoSize)
 	this->edgeSize_      = minoSize * EDGE_SIZE_PERCENTAGE / 100;
 	this->innerMinoSize_ = minoSize - 2 * this->edgeSize_;
 }
+
+} // namespace gui

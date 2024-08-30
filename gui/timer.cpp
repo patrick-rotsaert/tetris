@@ -1,5 +1,7 @@
 #include "timer.h"
 
+namespace gui {
+
 void Timer::timeout()
 {
 	if (this->callback_)
@@ -23,3 +25,5 @@ void Timer::stop()
 {
 	this->timer_.stop();
 }
+
+} // namespace gui

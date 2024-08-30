@@ -7,6 +7,8 @@
 
 #include <functional>
 
+namespace gui {
+
 class Timer final : public ITimer, public QObject
 {
 	QTimer                timer_{};
@@ -20,3 +22,5 @@ public:
 	void start(int msec, std::function<void()> callback) override;
 	void stop() override;
 };
+
+} // namespace gui

@@ -8,6 +8,8 @@ class QPoint;
 
 class Board;
 
+namespace gui {
+
 class BoardRenderer final
 {
 	static constexpr int PREVIEW_WIDTH  = 6;
@@ -26,3 +28,5 @@ public:
 
 	void render(const Board& board, const QPoint& boardOrigin);
 };
+
+} // namespace gui
