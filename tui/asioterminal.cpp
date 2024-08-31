@@ -309,12 +309,17 @@ class TerminalOutput final
 	GlyphPrinter glyphPrinter_{};
 
 	template<typename... Args>
-	void tparm(char* cap, Args... args)
+	bool tparm(char* cap, Args... args)
 	{
 		auto s = ::tparm(cap, args...);
 		if (s)
 		{
 			this->buffer_.append(s);
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 
@@ -375,7 +380,10 @@ public:
 			// set cursor visible
 			this->cursor(true);
 
-			this->tparm(exit_ca_mode);
+			if (!this->tparm(exit_ca_mode))
+			{
+				this->cls();
+			}
 
 			this->flush();
 		}

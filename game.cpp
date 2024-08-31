@@ -232,13 +232,17 @@ public:
 				changed = playingTetromino->rotate(RotationDirection::COUNTER_CLOCKWISE);
 				break;
 			case InputEvent::NEW_GAME:
-				return newGame();
+				return this->newGame();
 			}
 
 			if (changed)
 			{
 				this->afterChange();
 			}
+		}
+		else if (event == InputEvent::NEW_GAME)
+		{
+			return this->newGame();
 		}
 	}
 };

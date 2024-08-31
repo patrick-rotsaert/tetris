@@ -34,14 +34,52 @@ Attribute::type mino_color(TetrominoColor color)
 
 } // namespace
 
+MinoRenderer::MinoRenderer()
+    : size_{ 1, 1 }
+{
+}
+
+MinoRenderer& MinoRenderer::instance()
+{
+	static MinoRenderer _{};
+	return _;
+}
+
+void MinoRenderer::render(AsioTerminal& terminal, int x, int y, Attribute::type attr)
+{
+	for (int row = 0; row < this->size_.rows; ++row)
+	{
+		for (int column = 0; column < this->size_.colums; ++column)
+		{
+			terminal.print(attr, x + column, y + row, Character::GC_BLOCK);
+		}
+	}
+}
+
 void MinoRenderer::render(AsioTerminal& terminal, int x, int y, TetrominoColor color)
 {
-	terminal.print(mino_color(color), x, y, Character::GC_BLOCK);
+	return this->render(terminal, x, y, mino_color(color));
+}
+
+void MinoRenderer::render(AsioTerminal& terminal, const Position& pos, Attribute::type attr)
+{
+	return this->render(terminal, pos.x, pos.y, attr);
 }
 
 void MinoRenderer::render(AsioTerminal& terminal, const Position& pos, TetrominoColor color)
 {
-	return render(terminal, pos.x, pos.y, color);
+	return this->render(terminal, pos.x, pos.y, color);
+}
+
+const Size& MinoRenderer::size() const
+{
+	return this->size_;
+}
+
+void MinoRenderer::setSize(const Size& size)
+{
+	assert(size.colums > 0 && size.rows > 0);
+	this->size_ = size;
 }
 
 } // namespace tui
