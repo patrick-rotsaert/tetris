@@ -33,6 +33,9 @@
 #include <cctype>
 
 #include <unistd.h>
+#include <locale.h>
+#include <langinfo.h>
+#include <sys/ioctl.h>
 
 #if defined(CURSES_HAVE_CURSES_H)
 #include <curses.h>
@@ -45,9 +48,6 @@
 #else
 #error No curses header available
 #endif
-
-#include <locale.h>
-#include <langinfo.h>
 
 namespace tui {
 
@@ -341,6 +341,19 @@ class TerminalOutput final
 		}
 	}
 
+	void getSize()
+	{
+		winsize wsz{};
+		if (ioctl(this->fd(), TIOCGWINSZ, &wsz) == -1)
+		{
+			BOOST_THROW_EXCEPTION(std::system_error(errno, std::generic_category(), "ioctl(TIOCGWINSZ)"));
+		}
+
+		lines = this->rows_ = wsz.ws_row;
+		columns = this->columns_ = wsz.ws_col;
+		SPDLOG_DEBUG("rows: {}, columns: {}", this->rows_, this->columns_);
+	}
+
 public:
 	TerminalOutput()
 	{
@@ -356,9 +369,7 @@ public:
 			BOOST_THROW_EXCEPTION(std::runtime_error{ "Terminal too dumb!" });
 		}
 
-		this->rows_    = lines;
-		this->columns_ = columns;
-		SPDLOG_DEBUG("rows: {}, columns: {}", this->rows_, this->columns_);
+		this->getSize();
 
 		this->tparm(enter_ca_mode);
 
@@ -458,6 +469,11 @@ public:
 	void print(char c)
 	{
 		this->glyphPrinter_.print(this->buffer_, c);
+	}
+
+	void windowSizeChanged()
+	{
+		this->getSize();
 	}
 };
 
@@ -593,6 +609,14 @@ public:
 		{
 			this->writeNextScreen(std::move(this->nextScreen_));
 		}
+	}
+
+	void windowSizeChanged()
+	{
+		this->terminalOutput_.windowSizeChanged();
+		this->currentScreen_ = Screen{};
+		this->nextScreen_.reset();
+		this->lastScreen_.reset();
 	}
 
 private:
@@ -896,6 +920,11 @@ void AsioTerminal::print(Attribute::type attr, const Position& pos, char c)
 void AsioTerminal::update()
 {
 	return this->pimpl_->update();
+}
+
+void AsioTerminal::windowSizeChanged()
+{
+	return this->pimpl_->windowSizeChanged();
 }
 
 } // namespace tui

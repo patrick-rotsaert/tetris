@@ -16,10 +16,23 @@ class TuiApp::impl final
 	boost::asio::io_context ioc_;
 	tui::AsioTerminal       terminal_;
 	Game                    game_;
+	tui::BoardRenderer      boardRenderer_;
+	boost::asio::signal_set winchSignal_;
 
 	void update()
 	{
-		tui::BoardRenderer::render(this->game_.board(), this->terminal_);
+		this->boardRenderer_.render(this->game_.board(), this->terminal_);
+	}
+
+	void asyncWaitWinch()
+	{
+		this->winchSignal_.async_wait([&](const auto&, int sig) {
+			spdlog::info("caught signal {}", sig);
+			this->terminal_.windowSizeChanged();
+			this->boardRenderer_.calculateAndSetMinoSize(this->terminal_);
+			this->update();
+			this->asyncWaitWinch();
+		});
 	}
 
 public:
@@ -27,7 +40,11 @@ public:
 	    : ioc_{}
 	    , terminal_{ this->ioc_ }
 	    , game_{ [&]() { this->update(); }, std::make_unique<tui::Timer>(this->ioc_) }
+	    , boardRenderer_{}
+	    , winchSignal_{ this->ioc_, SIGWINCH }
 	{
+		this->boardRenderer_.calculateAndSetMinoSize(this->terminal_);
+
 		this->terminal_.cursor(false);
 
 		this->terminal_.setKeyPressedHandler([this](int key) {
@@ -67,11 +84,13 @@ public:
 	{
 		using namespace tui;
 
-		auto sigs = boost::asio::signal_set{ this->ioc_, SIGINT, SIGTERM };
-		sigs.async_wait([&](const auto&, int sig) {
+		auto quitSignals = boost::asio::signal_set{ this->ioc_, SIGINT, SIGTERM };
+		quitSignals.async_wait([&](const auto&, int sig) {
 			spdlog::info("caught signal {}", sig);
 			this->ioc_.stop();
 		});
+
+		this->asyncWaitWinch();
 
 		this->game_.start();
 

@@ -34,6 +34,8 @@ public:
 	void print(Attribute::type attr, const Position& pos, char c);
 
 	void update();
+
+	void windowSizeChanged();
 };
 
 } // namespace tui

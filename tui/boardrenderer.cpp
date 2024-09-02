@@ -37,14 +37,37 @@ namespace tui {
  ############
  */
 
-Size BoardRenderer::size()
+namespace {
+
+Size board_size(const Size& minoSize)
 {
-	const auto& minoSize = MinoRenderer::instance().size();
 	return Size{
 		(1 + Grid::height() + 1) * minoSize.rows, // border top + grid rows + border bottom
-		(1 + Grid::width() + 1 + 1 + 1 + PREVIEW_WIDTH + 1) *
+		(1 + Grid::width() + 1 + 1 + 1 + BoardRenderer::PREVIEW_WIDTH + 1) *
 		    minoSize.colums, // border left + grid columns + border right + space + border left + preview columns + border right
 	};
+}
+
+} // namespace
+
+void BoardRenderer::calculateAndSetMinoSize(const AsioTerminal& terminal)
+{
+	const auto terminalSize = terminal.size();
+
+	MinoRenderer::instance().setSize(Size{ 1, 1 });
+	for (int height = 1;; ++height)
+	{
+		const Size minoSize{ height, height * 2 };
+		const auto boardSize = board_size(minoSize);
+		if (boardSize <= terminalSize)
+		{
+			MinoRenderer::instance().setSize(minoSize);
+		}
+		else
+		{
+			break;
+		}
+	}
 }
 
 void BoardRenderer::render(const Board& board, AsioTerminal& terminal)
@@ -52,30 +75,11 @@ void BoardRenderer::render(const Board& board, AsioTerminal& terminal)
 	terminal.cls(Attribute::BG_BLACK);
 	const auto terminalSize = terminal.size();
 
-	auto& minoRenderer = MinoRenderer::instance();
+	auto&       minoRenderer = MinoRenderer::instance();
+	const auto& minoSize     = minoRenderer.size();
+	const auto  boardSize    = board_size(minoSize);
 
-	Size               boardSize{};
-	std::optional<int> minoHeight{};
-	for (int height = 1;; ++height)
-	{
-		minoRenderer.setSize(Size{ height, height * 2 });
-		boardSize = BoardRenderer::size();
-		if (boardSize <= terminalSize)
-		{
-			minoHeight = height;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	if (minoHeight)
-	{
-		minoRenderer.setSize(Size{ minoHeight.value(), minoHeight.value() * 2 });
-		boardSize = BoardRenderer::size();
-	}
-	else
+	if (!(boardSize <= terminalSize))
 	{
 		throw std::runtime_error{ fmt::format(
 			"Terminal too small. Need at least {} rows and {} columns.", boardSize.rows, boardSize.colums) };
@@ -84,8 +88,7 @@ void BoardRenderer::render(const Board& board, AsioTerminal& terminal)
 	Position boardOrigin{ (terminalSize.colums - boardSize.colums) / 2, (terminalSize.rows - boardSize.rows) / 2 };
 	auto     origin = boardOrigin;
 
-	const auto  borderAttr = Attribute::FG_LIGHTGRAY;
-	const auto& minoSize   = minoRenderer.size();
+	const auto borderAttr = Attribute::FG_LIGHTGRAY;
 
 	// vertical borders
 	for (int row = 0; row < Grid::height() + 2; ++row)
