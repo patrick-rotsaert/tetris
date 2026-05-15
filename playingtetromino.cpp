@@ -44,9 +44,9 @@ class PlayingTetromino::impl final
 			return this->position_;
 		}
 
-		if (this->tetromino_->wallKickMap())
+		if (const auto wallKickMapOpt = this->tetromino_->wallKickMap())
 		{
-			const auto& wallKickMap = this->tetromino_->wallKickMap().value().get();
+			const auto& wallKickMap  = wallKickMapOpt->get();
 			const auto  wallKickKey = std::make_tuple(currentRotation, direction);
 			const auto  it          = wallKickMap.find(wallKickKey);
 			assert(it != wallKickMap.end());
